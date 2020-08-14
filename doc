@@ -11,3 +11,20 @@ for item in items:
     category = item.text
     category = category.strip()
     print(category, '\n')
+
+
+import requests
+from bs4 import BeautifulSoup
+# print book catagories
+res = requests.get('http://books.toscrape.com/')
+soup = BeautifulSoup(res.text, 'html.parser')
+
+items = soup.find_all(class_ = 'product_pod')
+
+for item in items:
+    name = item.find('h3').find('a')['title']
+    rating = item.find('p')['class'][1]
+    price = item.find(class_='price_color').text
+    print(name, '\n', rating, '\n', price)
+
+

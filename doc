@@ -63,6 +63,141 @@ for music in list_music:
 # XHR的功能是传输数据，其中有非常重要的一种数据是用json格式写成的，和html一样，这种数据能够有组织地存储大量内容。json的数据类型是“文本”，在Python语言当中，我们把它称为字符串。我们能够非常轻易地将json格式的数据转化为列表/字典，也能将列表/字典转为json格式的数据。
 
 
+ #------- user reviews in QQ music------------------------------------------------------------------------------------------
+## --------------------使用传递url参数的办法，用params=..------------------------------------------
+import requests
+# 引用requests模块
+url = 'https://c.y.qq.com/base/fcgi-bin/fcg_global_comment_h5.fcg'
+# 请求歌曲评论的url参数的前面部分
+
+for i in range(5):
+    params = {
+    'g_tk':'5381',
+    'loginUin':'0', 
+    'hostUin':'0',
+    'format':'json',
+    'inCharset':'utf8',
+    'outCharset':'GB2312',
+    'notice':'0',
+    'platform':'yqq.json',
+    'needNewCode':'0',
+    'cid':'205360772',
+    'reqtype':'2',
+    'biztype':'1',
+    'topid':'102065756',
+    'cmd':'6',
+    'needmusiccrit':'0',
+    'pagenum':str(i),
+    'pagesize':'15',
+    'lasthotcommentid':'song_102065756_3202544866_44059185',
+    'domain':'qq.com',
+    'ct':'24',
+    'cv':'10101010'   
+    }
+    # 将参数封装为字典
+    res_comments = requests.get(url,params=params)
+    # 调用get方法，下载这个字典
+    json_comments = res_comments.json()
+    list_comments = json_comments['comment']['commentlist']
+    for comment in list_comments:
+        print(comment['rootcommentcontent'])
+        print('-----------------------------------')
+ 
+ #----------------------
+ import requests
+url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'
+
+headers = {
+    'origin':'https://y.qq.com',
+    # 请求来源，本案例中其实是不需要加这个参数的，只是为了演示
+    'referer':'https://y.qq.com/n/yqq/song/004Z8Ihr0JIu5s.html',
+    # 请求来源，携带的信息比“origin”更丰富，本案例中其实是不需要加这个参数的，只是为了演示
+    'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
+    # 标记了请求从什么设备，什么浏览器上发出
+    }
+# 伪装请求头
+# 将参数封装为字典
+res_music = requests.get(url,headers=headers,params=params)
+# 发起请求，填入请求头和参数
+
+#如果需要爬取一万多条信息，将for循环执行成百上千次。
+#那么，最好将自己的爬虫伪装成真实的浏览器（填写请求头）—— 因为在那种情况下，服务器很可能拒绝爬虫访问。甚至有的网站，一开始就不允许爬虫访问。如，知乎、猫眼电影。
+
+
+#--------------------------------------------lyrics of 周杰伦 in QQ Music
+#-------------总结以上三个
+        
+import requests
+url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'
+
+headers = {
+    'origin':'https://y.qq.com',
+    # 请求来源，本案例中其实是不需要加这个参数的，只是为了演示
+    'referer':'https://y.qq.com/n/yqq/song/004Z8Ihr0JIu5s.html',
+    # 请求来源，携带的信息比“origin”更丰富，本案例中其实是不需要加这个参数的，只是为了演示
+    'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
+    # 标记了请求从什么设备，什么浏览器上发出
+    }
+# 伪装请求头
+
+for i in range(5):
+    params = {
+    'ct':'24',
+    'qqmusic_ver': '1298',
+    'remoteplace': 'txt.yqq.lyric',
+    'searchid': '102621088190520188',
+    'aggr': '0',
+    'catZhida': '1',
+    'lossless': '0',
+    'sem': '1',
+    't': '7',
+    'p': str(i),
+    'n': '5',
+    'w': '周杰伦',
+    'g_tk_new_20200303': '5381',
+    'g_tk': '5381',
+    'loginUin': '0',
+    'hostUin': '0',
+    'format': 'json',
+    'inCharset': 'utf8',
+    'outCharset': 'utf-8',
+    'notice': '0',
+    'platform': 'yqq.json',
+    'needNewCode': '0'
+    }
+# 将参数封装为字典
+    res_music = requests.get(url,headers=headers,params=params)
+# 发起请求，填入请求头和参数
+    json_music = res_music.json()
+    list_lyrics = json_music['data']['lyric']['list']
+    for x in list_lyrics:
+        print(x['content'])
+        print('-----------------------------------')  
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
  

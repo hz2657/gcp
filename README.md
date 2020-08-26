@@ -7,5 +7,6 @@ URL: http://books.toscrape.com/
 
 
 BeautifulSoup: get first request in 'network'
+
 selenium: automates browsers, get all info in 'element'
 

@@ -6,7 +6,8 @@ URL: http://books.toscrape.com/
 2. douban moive information 
 
 
-BeautifulSoup: get first request in 'network'
 
-selenium: automates browsers, get all info in 'element'
+- BeautifulSoup: get first request in 'network'
+
+- Selenium: automates browsers, get all info in 'element'
 

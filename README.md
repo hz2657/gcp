@@ -1,10 +1,9 @@
 # web-scraping
 
-URL: http://books.toscrape.com/
-
-1. QQ music songs lyrics, user reviews
-2. douban moive information 
-
+practice URL:
+1. bookstore: http://books.toscrape.com/
+2. QQ music songs lyrics, user reviews
+3. douban moive information 
 
 
 - BeautifulSoup: get first request in 'network'

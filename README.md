@@ -11,3 +11,4 @@ URL: http://books.toscrape.com/
 
 - Selenium: automates browsers, get all info in 'element'
 
+- smtplib, email, MIMEMultipart: use python to send email

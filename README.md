@@ -5,6 +5,7 @@ practice URL:
 2. QQ music songs lyrics, user reviews
 3. douban moive information 
 
+# methods
 
 - BeautifulSoup: get first request in 'network'
 

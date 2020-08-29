@@ -13,4 +13,4 @@ practice URL:
 
 - smtplib, email, MIMEMultipart: use python to send email automatically
 
-- gevent:  a coroutine -based Python networking library 
+- gevent:  a coroutine -based Python networking library; Queue(): a data structure to save and extract data  (from gevent.queue import Queue)

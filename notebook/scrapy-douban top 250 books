@@ -1,0 +1,66 @@
+# 1.create Scrapy project 
+# douban is the project name
+scrapy startproject douban
+
+# within spider folder: settings.py 是scrapy里的各种设置。items.py是用来定义数据的，pipelines.py是用来处理数据的，它们对应的就是Scrapy的结构中的Item Pipeline
+# 我们可以在spiders这个文件夹里创建爬虫文件。我们来把这个文件，命名为top250
+#-------------------------------------------top250-----------------------------------------------------
+import scrapy
+import bs4
+
+class DoubanSpider(scrapy.Spider): # 定义一个爬虫类DoubanSpider
+    name = 'douban'   # 定义爬虫的名字为douban
+    allowed_domains = ['book.douban.com']  # 定义允许爬虫爬取的网址域名（不需要加https://）, allowed_domains就限制了，我们这种关联爬取的URL，一定在book.douban.com这个域名之下，不会跳转到某个奇怪的广告页面。
+    start_urls = []   # start_urls是定义起始网址，就是爬虫从哪个网址开始抓取。
+    for x in range(3):   # 先爬取豆瓣Top250前3页的书籍信息。
+        url = 'https://book.douban.com/top250?start=' + str(x * 25)
+        start_urls.append(url)
+
+    def parse(self, response):  # parse是Scrapy里默认处理response的一个方法，解析。
+        bs = bs4.BeautifulSoup(response.text,'html.parser')     #用BeautifulSoup解析response。
+        datas = bs.find_all('tr',class_="item")   #用find_all提取<tr class="item">元素，这个元素里含有书籍信息。
+        for data in  datas:
+            item = DoubanItem()  #实例化DoubanItem这个类。
+            item['title'] = data.find_all('a')[1]['title']  #提取出书名，并把这个数据放回DoubanItem类的title属性里。
+            item['publish'] = data.find('p',class_='pl').text #提取出出版信息，并把这个数据放回DoubanItem类的publish里。
+            item['score'] = data.find('span',class_='rating_nums').text  #提取出评分，并把这个数据放回DoubanItem类的score属性里。
+            print(item['title'])
+            yield item    #把获得的item传递给引擎。
+            
+            
+#-----------------------------------------items.py------------------------------------------------------
+import scrapy
+#导入scrapy
+class DoubanItem(scrapy.Item): #定义一个类DoubanItem，它继承自scrapy.Item
+    title = scrapy.Field() #定义书名的数据属性
+    publish = scrapy.Field() #定义出版信息的数据属性
+    score = scrapy.Field() #定义评分的数据属性
+    
+#-----------------------------------------settings.py------------------------------------------------------
+# Crawl responsibly by identifying yourself (and your website) on the user-agent
+#USER_AGENT = 'douban (+http://www.yourdomain.com)'
+
+# Obey robots.txt rules
+ROBOTSTXT_OBEY = True  # 如果改成False， 就把遵守robots协议换成无需遵从robots协议，这样Scrapy就能不受限制地运行。
+
+#在最外层的大文件夹里新建一个main.py文件（与scrapy.cfg同级）。
+#-----------------------------------------main.py------------------------------------------------------
+from scrapy import cmdline    #导入cmdline模块,可以实现控制终端命令行。
+cmdline.execute(['scrapy','crawl','douban']  #用execute（）方法，输入运行scrapy的命令。
+
+
+    
+# 每一次，当数据完成记录，它会离开spiders，来到Scrapy Engine（引擎），引擎将它送入Item Pipeline（数据管道）处理。这里，要用到yield语句。
+# yield语句类似return，不过它和return不同的点在于，它不会结束函数，且能多次返回信息。
+
+# 爬虫（Spiders）会把豆瓣的10个网址封装成requests对象，引擎会从爬虫（Spiders）里提取出requests对象，再交给调度器（Scheduler），让调度器把这些requests对象排序处理。
+# 引擎再把经过调度器处理的requests对象发给下载器（Downloader），下载器会立马按照引擎的命令爬取，并把response返回给引擎。
+# 接着引擎就会把response发回给爬虫（Spiders），这时爬虫会启动默认的处理response的parse方法，解析和提取出书籍信息的数据，使用item做记录，返回给引擎。引擎将它送入Item Pipeline（数据管道）处理。
+
+
+
+
+*Scheduler: 负责处理引擎发送过来的requests对象
+*Downloader: 网页爬取
+*Spiders: 创建requests对象和接受引擎发送过来的response（Downloader部门爬取到的内容），从中解析并提取出有用的数据
+*Item Pipeline: 负责存储和处理Spiders部门提取到的有用数据。

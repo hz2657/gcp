@@ -14,3 +14,5 @@ practice URL:
 - smtplib, email, MIMEMultipart: use python to send email automatically
 
 - gevent:  a coroutine -based Python networking library; Queue(): a data structure to save and extract data  (from gevent.queue import Queue)
+
+- scrapy: Scrapy Engine - 1. Scheduler, 2. Downloader: get data, 3. Spiders: get useful data, 4. Item Pipeline: save data 

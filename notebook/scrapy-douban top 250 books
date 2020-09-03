@@ -58,9 +58,84 @@ cmdline.execute(['scrapy','crawl','douban']  #用execute（）方法，输入运
 # 接着引擎就会把response发回给爬虫（Spiders），这时爬虫会启动默认的处理response的parse方法，解析和提取出书籍信息的数据，使用item做记录，返回给引擎。引擎将它送入Item Pipeline（数据管道）处理。
 
 
-
-
 *Scheduler: 负责处理引擎发送过来的requests对象
 *Downloader: 网页爬取
 *Spiders: 创建requests对象和接受引擎发送过来的response（Downloader部门爬取到的内容），从中解析并提取出有用的数据
 *Item Pipeline: 负责存储和处理Spiders部门提取到的有用数据。
+
+#--------------PROJECT 2 ------------------------------------------------------------------
+
+#---------------items.py------------------------------------------------------------------
+import scrapy
+class JobuiItem(scrapy.Item):
+#定义了一个继承自scrapy.Item的JobuiItem类
+    company = scrapy.Field()
+    #定义公司名称的数据属性
+    position = scrapy.Field()
+    #定义职位名称的数据属性
+    address = scrapy.Field()
+    #定义工作地点的数据属性
+    detail = scrapy.Field()
+    #定义招聘要求的数据属性
+
+#--spiders---
+#-------------jobui_ jobs--------------------------------------------------------------
+import scrapy  
+import bs4
+from ..items import JobuiItem
+
+class JobuiSpider(scrapy.Spider):    #定义一个爬虫类JobuiSpider
+    name = 'jobui'                   #定义爬虫的名字为jobui
+    allowed_domains = ['www.jobui.com']  #定义允许爬虫爬取网址的域名——职友集网站的域名
+    start_urls = ['https://www.jobui.com/rank/company/']  #定义起始网址——职友集企业排行榜的网址
+
+    def parse(self, response):   #parse是默认处理response的方法
+        bs = bs4.BeautifulSoup(response.text, 'html.parser')  #用BeautifulSoup解析response（企业排行榜的网页源代码）
+        ul_list = bs.find_all('ul',class_="textList flsty cfix")  #用find_all提取<ul class_="textList flsty cfix">标签
+        for ul in ul_list: #遍历ul_list
+            a_list = ul.find_all('a')  #用find_all提取出<ul class_="textList flsty cfix">元素里的所有<a>元素
+            for a in a_list:       #再遍历a_list
+                company_id = a['href']     #提取出所有<a>元素的href属性的值，也就是公司id标识
+                url = 'https://www.jobui.com{id}jobs'
+                real_url = url.format(id=company_id)  #构造出公司招聘信息的网址链接
+                
+   def parse_job(self, response):  #定义新的处理response的方法parse_job（方法的名字可以自己起）
+        bs = bs4.BeautifulSoup(response.text, 'html.parser')  #用BeautifulSoup解析response(公司招聘信息的网页源代码)
+        company = bs.find(id="companyH1").text   #用find方法提取出公司名称
+        datas = bs.find_all('div',class_="c-job-list")  #用find_all提取<div class_="c-job-list">标签，里面含有招聘信息的数据
+        for data in datas:
+            item = JobuiItem()  #实例化JobuiItem这个类
+            item['company'] = company    #把公司名称放回JobuiItem类的company属性里
+            item['position']=data.find('a').find('h3').text        #提取出职位名称，并把这个数据放回JobuiItem类的position属性里
+            item['address'] = data.find_all('span')[0]['title']   #提取出工作地点，并把这个数据放回JobuiItem类的address属性里
+            item['detail'] = data.find_all('span')[1]['title']          #提取出招聘要求，并把这个数据放回JobuiItem类的detail属性里
+            yield item              #用yield语句把item传递给引擎
+
+
+#-----------------settings.py---------------------------------------------------------------------------------------------------------------------
+FEED_URI='./storage/data/%(name)s.csv'
+FEED_FORMAT='csv'
+FEED_EXPORT_ENCODING='ansi'
+
+#-----------------pipelines.py--------------------------------------------------------------------------------------------------------------------
+import openpyxl
+
+class JobuiPipeline(object): #定义一个JobuiPipeline类，负责处理item
+    def __init__(self):  #初始化函数 当类实例化时这个方法会自启动
+        self.wb =openpyxl.Workbook()  #创建工作薄
+        self.ws = self.wb.active  #定位活动表
+        self.ws.append(['公司', '职位', '地址', '招聘信息'])  #用append函数往表格添加表头
+        
+    def process_item(self, item, spider):   #process_item是默认的处理item的方法，就像parse是默认处理response的方法
+        line = [item['company'], item['position'], item['address'], item['detail']]   #把公司名称、职位名称、工作地点和招聘要求都写成列表的形式，赋值给line
+        self.ws.append(line)  #用append函数把公司名称、职位名称、工作地点和招聘要求的数据都添加进表格
+        return item  #将item丢回给引擎，如果后面还有这个item需要经过的itempipeline，引擎会自己调度
+
+    def close_spider(self, spider): #close_spider是当爬虫结束运行时，这个方法就会执行
+        self.wb.save('./jobui.xlsx')
+        self.wb.close()
+
+
+
+
+
